@@ -1,0 +1,17 @@
+{
+  "name": "kotc",
+  "version": "1.0.0",
+  "description": "King of the court",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install:all": "cd ./app && npm i && cd ../electron && npm i",
+    "start:dev": "cd ./electron && npm run start:dev",
+    "start:dev:win": "cd ./electron && npm run start:dev:win",
+    "start:build": "cd ./app && npm run clean && npm run build && cd ../electron && npm run start:electron",
+    "start:build:win": "cd ./app && npm run clean && npm run build && cd ../electron && npm run start:electron",
+    "pack": "cd electron && npm run pack",
+    "build:pack": "cd electron && npm run build:pack"
+  },
+  "author": "",
+  "license": "ISC"
+}

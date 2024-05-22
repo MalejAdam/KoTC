@@ -1,0 +1,68 @@
+{
+  "name": "electron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "build:app": "npm run clean:build --prefix ../app",
+    "start:electron:dev": "APP_DEV=true electron .",
+    "start:electron:dev:win": "set APP_DEV=true&& electron .",
+    "start:electron": "BUILD_LOCAL=true electron .",
+    "start:electron:win": "set BUILD_LOCAL=true&& electron .",
+    "start:vite:dev": "npm run dev --prefix ../app",
+    "start:dev": "npm run start:vite:dev & npm run build && npm run start:electron:dev",
+    "start:dev:win": "concurrently --kill-others \"npm run start:vite:dev\" \"npm run build&& npm run start:electron:dev:win\"",
+    "pack": "npm run build && electron-builder --dir",
+    "pack:mac": "npm run build && electron-builder --dir --mac --x64 --arm64 --universal",
+    "build:pack": "npm run build:app && npm run pack"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.5",
+    "jszip": "^3.10.1",
+    "rimraf": "^5.0.5"
+  },
+  "devDependencies": {
+    "@types/electron": "^1.6.10",
+    "electron": "^30.0.1",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.4.5"
+  },
+  "build": {
+    "appId": "com.lnv-modal.app",
+    "directories": {},
+    "files": [
+      "build/**/*"
+    ],
+    "win": {
+      "icon": "smartbear.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "ia32",
+            "x64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "icon": "smartbear.ico",
+      "target": [
+        "AppImage",
+        "rpm"
+      ]
+    },
+    "mac": {
+      "target": [
+        "pkg",
+        "dmg"
+      ],
+      "entitlements": "entitlements.mac.plist"
+    }
+  }
+}

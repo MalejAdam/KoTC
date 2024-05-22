@@ -1,0 +1,1 @@
+cd .\electron && npm run dist
