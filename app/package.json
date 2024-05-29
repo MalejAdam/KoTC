@@ -27,7 +27,8 @@
     "query-string": "^9.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-error-boundary": "^4.0.13"
+    "react-error-boundary": "^4.0.13",
+    "react-hook-form": "^7.51.5"
   },
   "peerDependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.4",
@@ -51,6 +52,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "prettier": "3.2.5",
     "react-router-dom": "^6.23.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-dts": "^6.0.2",

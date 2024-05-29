@@ -4,7 +4,7 @@ import "dotenv/config";
 const createWindow = async () => {
   const isDev = process.env.APP_DEV === "true";
   const isBuildLocal = process.env.BUILD_LOCAL === "true";
-  const mainUrl = "http://localhost:5174";
+  const mainUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   const cmdArgsJson =
     isDev || isBuildLocal ? process.env.ARGS : process.argv[1];
   const {
@@ -74,7 +74,7 @@ const createWindow = async () => {
       },
       autoHideMenuBar: false,
     });
-    clockWindow.loadURL("http://localhost:5174/clock");
+    clockWindow.loadURL(`${mainUrl}/clock`);
 
     return event.returnValue = "clock opened"
   });
