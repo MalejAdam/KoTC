@@ -1,11 +1,11 @@
-import React from 'react'
-import { ThemeProvider, Typography } from '@mui/material'
+import React, { useState } from 'react'
+import { ThemeProvider } from '@mui/material'
 import { theme } from './theme/muiTheme'
 
-import { Snackbar } from '@src/components/Snackbar'
 import { SnackbarData } from '@src/types/snackbar'
 import { SetTime } from '@src/components/SetTime.tsx'
-import { AddTeamDialog } from '@src/components/AddTeamDialog.tsx'
+import { AddTeamDialog, Team } from '@src/components/AddTeamDialog.tsx'
+import { EditTeamDialog } from '@src/components/EditTeamDialog.tsx'
 
 const { ipcRenderer } = window.require('electron')
 
@@ -20,6 +20,11 @@ const App: React.FC = () => {
         showSnackBar: false,
         message: '',
     })
+
+    const [teams, setTeams] = useState<Team[]>([])
+    const [edittedUserIndex, setEdittedUserIndex] = useState<number | null>(
+        null
+    )
 
     const onClickOpenClock = async () => {
         await ipcRenderer.sendSync('open-clock')
@@ -46,57 +51,112 @@ const App: React.FC = () => {
         }
     }, [])
 
+    const handleAddTeam = (team: Team) => setTeams([...teams, team])
+    const editTeam = (team: Team) => {
+        const newTeams = [...teams]
+
+        if (edittedUserIndex === null) return
+
+        newTeams[edittedUserIndex] = team
+        setTeams(newTeams)
+    }
+    const handleEditTeamClose = () => setEdittedUserIndex(null)
+    const sortTeams = () => {
+        const sortedTeams = [...teams].sort(
+            (a, b) => (a.startPosition ?? 5) - (b.startPosition ?? 5)
+        )
+        setTeams(sortedTeams)
+    }
+
     return (
         <ThemeProvider theme={theme}>
-            <Snackbar
-                open={snackbarData.showSnackBar}
-                type={snackbarData.type}
-                onClose={() =>
-                    setSnackbarData({ ...snackbarData, showSnackBar: false })
-                }
-            >
-                <Typography paragraph>{snackbarData.message}</Typography>
-            </Snackbar>
             <div>
-                <h4>Akcje</h4>
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr',
-                        gap: '10px',
-                    }}
-                >
-                    <button
-                        onClick={async () => {
-                            await onClickOpenClock()
+                <div>
+                    <h4>Akcje</h4>
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '10px',
                         }}
                     >
-                        Otwórz zegar
-                    </button>
-                    <button
-                        onClick={async () => {
-                            await onClickStartClock()
-                        }}
-                    >
-                        START
-                    </button>
-                    <button
-                        onClick={async () => {
-                            await onClickStopClock()
-                        }}
-                    >
-                        STOP
-                    </button>
-                    <button onClick={() => setIsOpenAddTeamDialog(true)}>
-                        Dodaj drużynę
-                    </button>
+                        <button
+                            onClick={async () => {
+                                await onClickOpenClock()
+                            }}
+                        >
+                            Otwórz zegar
+                        </button>
+                        <button
+                            onClick={async () => {
+                                await onClickStartClock()
+                            }}
+                        >
+                            START
+                        </button>
+                        <button
+                            onClick={async () => {
+                                await onClickStopClock()
+                            }}
+                        >
+                            STOP
+                        </button>
+                        <button onClick={() => setIsOpenAddTeamDialog(true)}>
+                            Dodaj drużynę
+                        </button>
+                    </div>
                 </div>
+                <SetTime />
+                <AddTeamDialog
+                    isOpen={isOpenAddTeamDialog}
+                    handleClose={setIsOpenAddTeamDialog}
+                    handleAddTeam={handleAddTeam}
+                />
+                <div>
+                    <h4>Drużyny</h4>
+                    <button onClick={sortTeams}>Sortuj po pozycji</button>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: 'fit-content',
+                            gap: '10px',
+                        }}
+                    >
+                        {teams.map((team, index) => (
+                            <div
+                                key={`${team.player1}-${team.player2}`}
+                                style={{
+                                    display: 'flex',
+                                    gap: '10px',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <p style={{ margin: 0 }}>
+                                    <b>{index + 1}.</b> {team.player1} -{' '}
+                                    {team.player2}
+                                </p>
+                                <button
+                                    onClick={() => setEdittedUserIndex(index)}
+                                >
+                                    Edytuj
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                {edittedUserIndex !== null && (
+                    <EditTeamDialog
+                        isOpen
+                        player1={teams[edittedUserIndex].player1}
+                        player2={teams[edittedUserIndex].player1}
+                        teamColor={teams[edittedUserIndex].teamColor}
+                        startPosition={teams[edittedUserIndex].startPosition}
+                        handleClose={handleEditTeamClose}
+                        handleEditTeam={editTeam}
+                    />
+                )}
             </div>
-            <SetTime />
-            <AddTeamDialog
-                isOpen={isOpenAddTeamDialog}
-                handleClose={setIsOpenAddTeamDialog}
-            />
         </ThemeProvider>
     )
 }

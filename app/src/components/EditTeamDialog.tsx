@@ -1,32 +1,37 @@
 import { Dialog, Input } from '@mui/material'
 import React from 'react'
 import { useForm } from 'react-hook-form'
-export type Team = {
-    player1: string
-    player2: string
-    teamColor?: string
-    startPosition?: number
-}
+import { Team } from '@src/components/AddTeamDialog.tsx'
 
-type Props = {
+type Props = Team & {
     isOpen: boolean
     handleClose: (value: boolean) => void
-    handleAddTeam: (team: Team) => void
+    handleEditTeam: (team: Team) => void
 }
 
-export const AddTeamDialog = ({
+export const EditTeamDialog = ({
     isOpen,
     handleClose,
-    handleAddTeam,
+    handleEditTeam,
+    teamColor,
+    player1,
+    player2,
+    startPosition,
 }: Props) => {
-    const { register, handleSubmit, reset } = useForm<Team>()
+    const { register, handleSubmit, reset } = useForm<Team>({
+        defaultValues: {
+            player1,
+            player2,
+            teamColor,
+            startPosition,
+        },
+    })
 
     const onSubmit = ({ player1, player2, teamColor, startPosition }: Team) => {
         if (!player1 || !player2) return
 
-        handleAddTeam({ player1, player2, teamColor, startPosition })
+        handleEditTeam({ player1, player2, teamColor, startPosition })
         handleClose(false)
-        reset()
     }
 
     return (
@@ -57,7 +62,7 @@ export const AddTeamDialog = ({
                     }}
                 >
                     <button onClick={() => handleClose(false)}>Anuluj</button>
-                    <button type="submit">Dodaj</button>
+                    <button type="submit">Edytuj</button>
                 </div>
             </form>
         </Dialog>
