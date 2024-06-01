@@ -111,6 +111,18 @@ const createWindow = async () => {
     },
   );
 
+  ipcMain.on("setTeams", (event, { teams: mainTeams }: { teams: Team[] }) => {
+    if (!clockWindow) {
+      return (event.returnValue = "clock not opened");
+    }
+
+    teams = mainTeams;
+
+    clockWindow.webContents.send("set-teams", { teams: mainTeams });
+
+    return (event.returnValue = "teams setted");
+  });
+
   ipcMain.on(
     "set-clock",
     (event, { minutes, seconds }: { minutes: number; seconds: number }) => {

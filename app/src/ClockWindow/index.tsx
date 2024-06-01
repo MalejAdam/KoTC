@@ -140,6 +140,13 @@ const Clock: React.FC = () => {
         })
 
         ipcRenderer.on(
+            'set-teams',
+            (_event: Event, { teams }: { teams: Team[] }) => {
+                setTeams(teams)
+            }
+        )
+
+        ipcRenderer.on(
             'set-clock',
             (
                 _event: Event,

@@ -43,6 +43,7 @@ const App: React.FC = () => {
         const newTeams = [...teams]
         newTeams.push(king)
         setTeams(newTeams)
+        await ipcRenderer.sendSync('setTeams', { teams: newTeams })
     }
 
     const newPretendent = async () => {
@@ -50,6 +51,7 @@ const App: React.FC = () => {
         const currentPretendent = teams.shift() as Team
         const newTeams = [king, ...teams, currentPretendent]
         setTeams(newTeams)
+        await ipcRenderer.sendSync('setTeams', { teams: newTeams })
     }
 
     React.useEffect(() => {
