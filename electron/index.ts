@@ -1,5 +1,18 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, WebContentsView } from "electron";
+import {
+  app,
+  BrowserWindow,
+  globalShortcut,
+  ipcMain,
+  WebContentsView,
+} from "electron";
 import "dotenv/config";
+
+export type Team = {
+  player1: string;
+  player2: string;
+  teamColor?: string;
+  startPosition?: number;
+};
 
 const createWindow = async () => {
   const isDev = process.env.APP_DEV === "true";
@@ -13,10 +26,12 @@ const createWindow = async () => {
     showPGForm,
     scenarioId: _scenarioId,
     projectId: _projectId,
-    testRunId: _testRunId
+    testRunId: _testRunId,
   } = JSON.parse(String(cmdArgsJson));
 
-  if(!apiKey || !accountId) {
+  let teams = null;
+
+  if (!apiKey || !accountId) {
     console.error("Missing accountId or apiKey in the arguments");
     app.quit();
   }
@@ -32,7 +47,7 @@ const createWindow = async () => {
     autoHideMenuBar: false,
   });
 
-  let clockWindow = null
+  let clockWindow = null;
 
   globalShortcut.register("f5", function () {
     browserWindow.reload();
@@ -46,19 +61,21 @@ const createWindow = async () => {
     browserWindow.webContents.send("isLoading", false);
     //TODO: when electron backend implementation of translation is  finished we have to add event with flag change
 
-    if(showPGForm && (!_scenarioId || !_projectId)) {
+    if (showPGForm && (!_scenarioId || !_projectId)) {
       browserWindow.webContents.send("setSnackbar", {
         type: "error",
         showSnackBar: true,
-        message: 'Please provide the "scenarioId" and "projectId" if you want to update the scenario'
+        message:
+          'Please provide the "scenarioId" and "projectId" if you want to update the scenario',
       });
     }
 
-    if(!showPGForm && (!_testRunId  || !_projectId)) {
+    if (!showPGForm && (!_testRunId || !_projectId)) {
       browserWindow.webContents.send("setSnackbar", {
         type: "error",
         showSnackBar: true,
-        message: 'Please provide the "testRunId" and "projectId" if you want to view a testRun'
+        message:
+          'Please provide the "testRunId" and "projectId" if you want to view a testRun',
       });
     }
   });
@@ -76,37 +93,45 @@ const createWindow = async () => {
     });
     clockWindow.loadURL(`${mainUrl}/clock`);
 
-    return event.returnValue = "clock opened"
+    return (event.returnValue = "clock opened");
   });
 
-  ipcMain.on("start-clock", (event) => {
-    if(!clockWindow) {
-        return event.returnValue = "clock not opened"
-    }
+  ipcMain.on(
+    "start-clock",
+    (event, { teams: mainTeams }: { teams: Team[] }) => {
+      if (!clockWindow) {
+        return (event.returnValue = "clock not opened");
+      }
 
-    clockWindow.webContents.send("start-clock", true);
+      teams = mainTeams;
 
-    return event.returnValue = "clock started"
-  });
+      clockWindow.webContents.send("start-clock", { start: true, teams });
 
-  ipcMain.on("set-clock", (event, {minutes, seconds}: {minutes: number, seconds: number}) => {
-    if(!clockWindow) {
-      return event.returnValue = "clock not opened"
-    }
+      return (event.returnValue = "clock started");
+    },
+  );
 
-    clockWindow.webContents.send("set-clock", { minutes, seconds });
+  ipcMain.on(
+    "set-clock",
+    (event, { minutes, seconds }: { minutes: number; seconds: number }) => {
+      if (!clockWindow) {
+        return (event.returnValue = "clock not opened");
+      }
 
-    return event.returnValue = "clock setted"
-  });
+      clockWindow.webContents.send("set-clock", { minutes, seconds });
+
+      return (event.returnValue = "clock setted");
+    },
+  );
 
   ipcMain.on("stop-clock", (event) => {
-    if(!clockWindow) {
-      return event.returnValue = "clock not stopped"
+    if (!clockWindow) {
+      return (event.returnValue = "clock not stopped");
     }
 
     clockWindow.webContents.send("stop-clock", true);
 
-    return event.returnValue = "clock stopped"
+    return (event.returnValue = "clock stopped");
   });
 
   ipcMain.on("close", () => app.quit());

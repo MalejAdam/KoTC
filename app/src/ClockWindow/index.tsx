@@ -122,10 +122,17 @@ const Clock: React.FC = () => {
     }
 
     React.useEffect(() => {
-        ipcRenderer.on('start-clock', (_event: Event, arg: boolean) => {
-            console.log('start-clock')
-            setIsClockStart(arg)
-        })
+        ipcRenderer.on(
+            'start-clock',
+            (
+                _event: Event,
+                { start, teams }: { start: boolean; teams: Team[] }
+            ) => {
+                console.log('start-clock')
+                setIsClockStart(start)
+                setTeams(teams)
+            }
+        )
 
         ipcRenderer.on('stop-clock', (_event: Event) => {
             setIsClockStart(false)

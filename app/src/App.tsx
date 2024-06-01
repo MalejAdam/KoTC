@@ -31,11 +31,25 @@ const App: React.FC = () => {
     }
 
     const onClickStartClock = async () => {
-        await ipcRenderer.sendSync('start-clock')
+        await ipcRenderer.sendSync('start-clock', { teams })
     }
 
     const onClickStopClock = async () => {
         await ipcRenderer.sendSync('stop-clock')
+    }
+
+    const pretendentToKing = async () => {
+        const king = teams.shift() as Team
+        const newTeams = [...teams]
+        newTeams.push(king)
+        setTeams(newTeams)
+    }
+
+    const newPretendent = async () => {
+        const king = teams.shift() as Team
+        const currentPretendent = teams.shift() as Team
+        const newTeams = [king, ...teams, currentPretendent]
+        setTeams(newTeams)
     }
 
     React.useEffect(() => {
@@ -104,6 +118,10 @@ const App: React.FC = () => {
                         <button onClick={() => setIsOpenAddTeamDialog(true)}>
                             Dodaj drużynę
                         </button>
+                        <button onClick={pretendentToKing}>
+                            Pretendent na króla
+                        </button>
+                        <button onClick={newPretendent}>Nowy pretendent</button>
                     </div>
                 </div>
                 <SetTime />
@@ -149,7 +167,7 @@ const App: React.FC = () => {
                     <EditTeamDialog
                         isOpen
                         player1={teams[edittedUserIndex].player1}
-                        player2={teams[edittedUserIndex].player1}
+                        player2={teams[edittedUserIndex].player2}
                         teamColor={teams[edittedUserIndex].teamColor}
                         startPosition={teams[edittedUserIndex].startPosition}
                         handleClose={handleEditTeamClose}
