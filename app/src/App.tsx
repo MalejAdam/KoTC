@@ -54,6 +54,14 @@ const App: React.FC = () => {
         await ipcRenderer.sendSync('setTeams', { teams: newTeams })
     }
 
+    const pointForKing = async () => {
+        const king = teams.shift() as Team
+        king.points = (king.points || 0) + 1
+        const newTeams = [king, ...teams]
+        setTeams(newTeams)
+        await ipcRenderer.sendSync('setTeams', { teams: newTeams })
+    }
+
     React.useEffect(() => {
         ipcRenderer.on(
             'setSnackbar',
@@ -124,6 +132,7 @@ const App: React.FC = () => {
                             Pretendent na króla
                         </button>
                         <button onClick={newPretendent}>Nowy pretendent</button>
+                        <button onClick={pointForKing}>Punkt dla króla</button>
                     </div>
                 </div>
                 <SetTime />

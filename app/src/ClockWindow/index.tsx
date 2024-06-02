@@ -285,7 +285,7 @@ const Clock: React.FC = () => {
                     >
                         <div style={{ width: '20%', ...centerStyle }}>
                             <h1 style={{ fontSize: '80px', color: '#fff' }}>
-                                0
+                                {teams[2].points ?? 0}
                             </h1>
                         </div>
                         <div
@@ -315,7 +315,7 @@ const Clock: React.FC = () => {
                     >
                         <div style={{ width: '20%', ...centerStyle }}>
                             <h1 style={{ fontSize: '80px', color: '#fff' }}>
-                                0
+                                {teams[3].points ?? 0}
                             </h1>
                         </div>
                         <div
@@ -345,7 +345,9 @@ const Clock: React.FC = () => {
                         }}
                     >
                         <div style={{ width: '20%', ...centerStyle }}>
-                            <h1 style={{ fontSize: '80px' }}>0</h1>
+                            <h1 style={{ fontSize: '80px' }}>
+                                {teams[4].points ?? 0}
+                            </h1>
                         </div>
                         <div
                             style={{
@@ -419,7 +421,9 @@ const Clock: React.FC = () => {
                                 ...centerStyle,
                             }}
                         >
-                            <h1 style={{ fontSize: '200px' }}>0</h1>
+                            <h1 style={{ fontSize: '200px' }}>
+                                {teams[1].points ?? 0}
+                            </h1>
                         </div>
                     </div>
                     <div
@@ -438,7 +442,9 @@ const Clock: React.FC = () => {
                             }}
                         />
                         <div style={{ width: '60%', ...centerStyle }}>
-                            <h1 style={{ fontSize: '200px' }}>0</h1>
+                            <h1 style={{ fontSize: '200px' }}>
+                                {teams[0].points ?? 0}
+                            </h1>
                         </div>
                     </div>
                 </div>

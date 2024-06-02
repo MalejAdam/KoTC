@@ -6,6 +6,7 @@ export type Team = {
     player2: string
     teamColor?: string
     startPosition?: number
+    points?: number
 }
 
 type Props = {
