@@ -3,7 +3,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { Team } from '@src/components/AddTeamDialog.tsx'
 
-type Props = Team & {
+type Props = Omit<Team, 'spentTime'> & {
     isOpen: boolean
     handleClose: (value: boolean) => void
     handleEditTeam: (team: Team) => void
@@ -17,6 +17,7 @@ export const EditTeamDialog = ({
     player1,
     player2,
     startPosition,
+    points = 0,
 }: Props) => {
     const { register, handleSubmit, reset } = useForm<Team>({
         defaultValues: {
@@ -24,6 +25,7 @@ export const EditTeamDialog = ({
             player2,
             teamColor,
             startPosition,
+            points,
         },
     })
 
@@ -53,6 +55,12 @@ export const EditTeamDialog = ({
                         type="number"
                         style={{ width: '100%' }}
                         {...register('startPosition')}
+                    />
+                    <p>Punkty:</p>
+                    <Input
+                        type="number"
+                        style={{ width: '100%' }}
+                        {...register('points')}
                     />
                 </div>
                 <div

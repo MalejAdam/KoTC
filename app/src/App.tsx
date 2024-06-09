@@ -39,11 +39,8 @@ const App: React.FC = () => {
     }
 
     const pretendentToKing = async () => {
-        const king = teams.shift() as Team
-        const newTeams = [...teams]
-        newTeams.push(king)
-        setTeams(newTeams)
-        await ipcRenderer.sendSync('setTeams', { teams: newTeams })
+        await ipcRenderer.sendSync('pretendentToKing')
+        await ipcRenderer.sendSync('getTeamTimeOnKingSite')
     }
 
     const newPretendent = async () => {
@@ -55,11 +52,7 @@ const App: React.FC = () => {
     }
 
     const pointForKing = async () => {
-        const king = teams.shift() as Team
-        king.points = (king.points || 0) + 1
-        const newTeams = [king, ...teams]
-        setTeams(newTeams)
-        await ipcRenderer.sendSync('setTeams', { teams: newTeams })
+        await ipcRenderer.sendSync('pointForKing')
     }
 
     React.useEffect(() => {
@@ -181,6 +174,7 @@ const App: React.FC = () => {
                         player2={teams[edittedUserIndex].player2}
                         teamColor={teams[edittedUserIndex].teamColor}
                         startPosition={teams[edittedUserIndex].startPosition}
+                        points={teams[edittedUserIndex].points}
                         handleClose={handleEditTeamClose}
                         handleEditTeam={editTeam}
                     />

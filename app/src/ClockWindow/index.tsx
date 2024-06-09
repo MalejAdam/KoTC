@@ -17,36 +17,43 @@ const centerStyle = {
 const Clock: React.FC = () => {
     const [isClockStart, setIsClockStart] = useState(false)
 
+    const test = useRef(0)
+
     const [teams, setTeams] = useState<Team[]>([
         {
             player1: 'playerT11',
             player2: 'playerT12',
             teamColor: '#ff0000',
             startPosition: 1,
+            spentTime: 0,
         },
         {
             player1: 'playerT12',
             player2: 'playerT22',
             teamColor: '#00ff00',
             startPosition: 2,
+            spentTime: 0,
         },
         {
             player1: 'playerT13',
             player2: 'playerT23',
             teamColor: '#0000ff',
             startPosition: 3,
+            spentTime: 0,
         },
         {
             player1: 'playerT14',
             player2: 'playerT24',
             teamColor: '#8000ff',
             startPosition: 4,
+            spentTime: 0,
         },
         {
             player1: 'playerT15',
             player2: 'playerT25',
             teamColor: '#ffff00',
             startPosition: 5,
+            spentTime: 0,
         },
     ])
 
@@ -67,12 +74,8 @@ const Clock: React.FC = () => {
     const startTimer = (e: string) => {
         let { total, minutes, seconds } = getTimeRemaining(e)
         if (total >= 0) {
-            // update the timer
-            // check if less than 10 then we need to
-            // add '0' at the beginning of the variable
+            test.current = test.current + 1
             setTimer(
-                // (hours > 9 ? hours : '0' + hours) +
-                //     ':' +
                 (minutes > 9 ? minutes : '0' + minutes) +
                     ':' +
                     (seconds > 9 ? seconds : '0' + seconds)
@@ -140,6 +143,18 @@ const Clock: React.FC = () => {
         })
 
         ipcRenderer.on(
+            'getTeamTimeOnKingSite',
+            async (_event: Event, { color }: { color: string }) => {
+                console.log('kingTime', test.current)
+                await ipcRenderer.sendSync('setTeamTimeOnKingSite', {
+                    color,
+                    spentTime: test.current,
+                })
+                test.current = 0
+            }
+        )
+
+        ipcRenderer.on(
             'set-teams',
             (_event: Event, { teams }: { teams: Team[] }) => {
                 setTeams(teams)
@@ -193,7 +208,7 @@ const Clock: React.FC = () => {
                     <img
                         src={Queen}
                         alt="Queen"
-                        height={400}
+                        height={220}
                         style={{ transform: 'rotate(-30deg)' }}
                     />
                     <div
@@ -206,12 +221,12 @@ const Clock: React.FC = () => {
                         <img
                             src={AlumetaltechLogo}
                             alt="Alumetaltech"
-                            height={250}
+                            height={200}
                         />
                         <h1
                             style={{
                                 ...centerStyle,
-                                fontSize: '300px',
+                                fontSize: '40px',
                                 color: '#fff',
                             }}
                         >
@@ -220,8 +235,8 @@ const Clock: React.FC = () => {
                     </div>
                     <img
                         src={King}
-                        alt="Queen"
-                        height={400}
+                        alt="King"
+                        height={220}
                         style={{ transform: 'rotate(30deg)' }}
                     />
                 </div>
@@ -244,7 +259,7 @@ const Clock: React.FC = () => {
                             gridArea: 'nextUpTitle',
                             ...centerStyle,
                             border: '1px solid white',
-                            fontSize: '50px',
+                            fontSize: '30px',
                             borderTop: '2px solid white',
                             color: '#fff',
                         }}
@@ -256,7 +271,7 @@ const Clock: React.FC = () => {
                             gridArea: 'challengerTitle',
                             ...centerStyle,
                             border: '1px solid white',
-                            fontSize: '50px',
+                            fontSize: '30px',
                             borderTop: '2px solid white',
                             color: '#fff',
                         }}
@@ -268,7 +283,7 @@ const Clock: React.FC = () => {
                             gridArea: 'kingsideTitle',
                             ...centerStyle,
                             border: '1px solid white',
-                            fontSize: '50px',
+                            fontSize: '30px',
                             color: '#f5cc00',
                             borderTop: '2px solid white',
                         }}
@@ -284,7 +299,7 @@ const Clock: React.FC = () => {
                         }}
                     >
                         <div style={{ width: '20%', ...centerStyle }}>
-                            <h1 style={{ fontSize: '80px', color: '#fff' }}>
+                            <h1 style={{ fontSize: '40px', color: '#fff' }}>
                                 {teams[2].points ?? 0}
                             </h1>
                         </div>
@@ -297,7 +312,7 @@ const Clock: React.FC = () => {
                         <div style={{ width: '65%', ...centerStyle }}>
                             <h1
                                 style={{
-                                    fontSize: '40px',
+                                    fontSize: '20px',
                                     textAlign: 'center',
                                     color: '#fff',
                                 }}
@@ -314,7 +329,7 @@ const Clock: React.FC = () => {
                         }}
                     >
                         <div style={{ width: '20%', ...centerStyle }}>
-                            <h1 style={{ fontSize: '80px', color: '#fff' }}>
+                            <h1 style={{ fontSize: '40px', color: '#fff' }}>
                                 {teams[3].points ?? 0}
                             </h1>
                         </div>
@@ -327,7 +342,7 @@ const Clock: React.FC = () => {
                         <div style={{ width: '65%', ...centerStyle }}>
                             <h1
                                 style={{
-                                    fontSize: '40px',
+                                    fontSize: '20px',
                                     textAlign: 'center',
                                     color: '#fff',
                                 }}
@@ -336,36 +351,38 @@ const Clock: React.FC = () => {
                             </h1>
                         </div>
                     </div>
-                    <div
-                        style={{
-                            gridArea: 'team3',
-                            border: '1px solid black',
-                            display: 'flex',
-                            color: '#fff',
-                        }}
-                    >
-                        <div style={{ width: '20%', ...centerStyle }}>
-                            <h1 style={{ fontSize: '80px' }}>
-                                {teams[4].points ?? 0}
-                            </h1>
-                        </div>
+                    {teams[4] && (
                         <div
                             style={{
-                                backgroundColor: teams[4].teamColor,
-                                width: '15%',
+                                gridArea: 'team3',
+                                border: '1px solid white',
+                                display: 'flex',
+                                color: '#fff',
                             }}
-                        ></div>
-                        <div style={{ width: '65%', ...centerStyle }}>
-                            <h1
+                        >
+                            <div style={{ width: '20%', ...centerStyle }}>
+                                <h1 style={{ fontSize: '40px' }}>
+                                    {teams[4].points ?? 0}
+                                </h1>
+                            </div>
+                            <div
                                 style={{
-                                    fontSize: '40px',
-                                    textAlign: 'center',
+                                    backgroundColor: teams[4].teamColor,
+                                    width: '15%',
                                 }}
-                            >
-                                {teams[3].player1} & {teams[4].player2}
-                            </h1>
+                            ></div>
+                            <div style={{ width: '65%', ...centerStyle }}>
+                                <h1
+                                    style={{
+                                        fontSize: '20px',
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    {teams[4].player1} & {teams[4].player2}
+                                </h1>
+                            </div>
                         </div>
-                    </div>
+                    )}
                     <div
                         style={{
                             gridArea: 'pretendentTitle',
@@ -376,7 +393,7 @@ const Clock: React.FC = () => {
                     >
                         <h1
                             style={{
-                                fontSize: '40px',
+                                fontSize: '20px',
                                 textAlign: 'center',
                             }}
                         >
@@ -393,7 +410,7 @@ const Clock: React.FC = () => {
                     >
                         <h1
                             style={{
-                                fontSize: '40px',
+                                fontSize: '20px',
                                 textAlign: 'center',
                             }}
                         >
@@ -421,7 +438,7 @@ const Clock: React.FC = () => {
                                 ...centerStyle,
                             }}
                         >
-                            <h1 style={{ fontSize: '200px' }}>
+                            <h1 style={{ fontSize: '100px' }}>
                                 {teams[1].points ?? 0}
                             </h1>
                         </div>
@@ -442,7 +459,7 @@ const Clock: React.FC = () => {
                             }}
                         />
                         <div style={{ width: '60%', ...centerStyle }}>
-                            <h1 style={{ fontSize: '200px' }}>
+                            <h1 style={{ fontSize: '100px' }}>
                                 {teams[0].points ?? 0}
                             </h1>
                         </div>

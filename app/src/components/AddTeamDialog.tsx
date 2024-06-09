@@ -7,6 +7,7 @@ export type Team = {
     teamColor?: string
     startPosition?: number
     points?: number
+    spentTime?: number
 }
 
 type Props = {
@@ -25,7 +26,13 @@ export const AddTeamDialog = ({
     const onSubmit = ({ player1, player2, teamColor, startPosition }: Team) => {
         if (!player1 || !player2) return
 
-        handleAddTeam({ player1, player2, teamColor, startPosition })
+        handleAddTeam({
+            player1,
+            player2,
+            teamColor,
+            startPosition,
+            spentTime: 0,
+        })
         handleClose(false)
         reset()
     }

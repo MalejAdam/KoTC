@@ -12,6 +12,8 @@ export type Team = {
   player2: string;
   teamColor?: string;
   startPosition?: number;
+  spentTime: number;
+  points?: number;
 };
 
 const createWindow = async () => {
@@ -29,7 +31,7 @@ const createWindow = async () => {
     testRunId: _testRunId,
   } = JSON.parse(String(cmdArgsJson));
 
-  let teams = null;
+  let teams = [] as Team[];
 
   if (!apiKey || !accountId) {
     console.error("Missing accountId or apiKey in the arguments");
@@ -123,6 +125,30 @@ const createWindow = async () => {
     return (event.returnValue = "teams setted");
   });
 
+  ipcMain.on("getTeamTimeOnKingSite", (event) => {
+    if (!clockWindow) {
+      return (event.returnValue = "clock not opened");
+    }
+    const lastKing = teams[teams.length - 1];
+    clockWindow.webContents.send("getTeamTimeOnKingSite", {
+      color: lastKing.teamColor,
+    });
+
+    return (event.returnValue = "getTeamTimeOnKingSite");
+  });
+
+  ipcMain.on(
+    "setTeamTimeOnKingSite",
+    (event, { color, spentTime }: { color: string; spentTime: number }) => {
+      const team = teams.find((team) => team.teamColor === color);
+      const index = teams.findIndex((team) => team.teamColor === color);
+      team.spentTime = team.spentTime + spentTime;
+      teams[index] = team;
+      console.log("teams", teams);
+      return (event.returnValue = "time setted");
+    },
+  );
+
   ipcMain.on(
     "set-clock",
     (event, { minutes, seconds }: { minutes: number; seconds: number }) => {
@@ -142,6 +168,39 @@ const createWindow = async () => {
     }
 
     clockWindow.webContents.send("stop-clock", true);
+
+    return (event.returnValue = "clock stopped");
+  });
+
+  ipcMain.on("pretendentToKing", (event) => {
+    const king = teams.shift() as Team;
+    const newTeams = [...teams];
+    newTeams.push(king);
+
+    teams = newTeams;
+
+    if (!clockWindow) {
+      return (event.returnValue = "clock not opened");
+    }
+
+    clockWindow.webContents.send("set-teams", { teams: newTeams });
+
+    return (event.returnValue = "clock stopped");
+  });
+
+  ipcMain.on("pointForKing", (event) => {
+    const king = teams.shift() as Team;
+    king.points = king.points ? king.points + 1 : 1;
+
+    const newTeams = [king, ...teams];
+
+    teams = newTeams;
+
+    if (!clockWindow) {
+      return (event.returnValue = "clock not opened");
+    }
+
+    clockWindow.webContents.send("set-teams", { teams: newTeams });
 
     return (event.returnValue = "clock stopped");
   });
