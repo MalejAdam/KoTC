@@ -1,10 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  globalShortcut,
-  ipcMain,
-  WebContentsView,
-} from "electron";
+import { app, BrowserWindow, globalShortcut, ipcMain } from "electron";
 import "dotenv/config";
 
 export type Team = {
@@ -20,23 +14,8 @@ const createWindow = async () => {
   const isDev = process.env.APP_DEV === "true";
   const isBuildLocal = process.env.BUILD_LOCAL === "true";
   const mainUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-  const cmdArgsJson =
-    isDev || isBuildLocal ? process.env.ARGS : process.argv[1];
-  const {
-    apiKey,
-    accountId,
-    showPGForm,
-    scenarioId: _scenarioId,
-    projectId: _projectId,
-    testRunId: _testRunId,
-  } = JSON.parse(String(cmdArgsJson));
 
   let teams = [] as Team[];
-
-  if (!apiKey || !accountId) {
-    console.error("Missing accountId or apiKey in the arguments");
-    app.quit();
-  }
 
   const browserWindow = new BrowserWindow({
     title: "LNV Modal",
@@ -62,29 +41,11 @@ const createWindow = async () => {
   browserWindow.webContents.on("did-finish-load", () => {
     browserWindow.webContents.send("isLoading", false);
     //TODO: when electron backend implementation of translation is  finished we have to add event with flag change
-
-    if (showPGForm && (!_scenarioId || !_projectId)) {
-      browserWindow.webContents.send("setSnackbar", {
-        type: "error",
-        showSnackBar: true,
-        message:
-          'Please provide the "scenarioId" and "projectId" if you want to update the scenario',
-      });
-    }
-
-    if (!showPGForm && (!_testRunId || !_projectId)) {
-      browserWindow.webContents.send("setSnackbar", {
-        type: "error",
-        showSnackBar: true,
-        message:
-          'Please provide the "testRunId" and "projectId" if you want to view a testRun',
-      });
-    }
   });
 
   ipcMain.on("open-clock", (event) => {
     clockWindow = new BrowserWindow({
-      title: "Testowy tekst",
+      title: "Clock window",
       width: 500,
       height: 500,
       webPreferences: {
