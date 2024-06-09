@@ -232,6 +232,16 @@ const Clock: React.FC = () => {
                         >
                             {timer}
                         </h1>
+                        <h1
+                            style={{
+                                ...centerStyle,
+                                fontSize: '20px',
+                                color: '#fff',
+                                marginTop: '20px',
+                            }}
+                        >
+                            COUNTDOWN
+                        </h1>
                     </div>
                     <img
                         src={King}
