@@ -1,4 +1,4 @@
-import { Dialog, Input } from '@mui/material'
+import { Dialog, Input, MenuItem, Select } from '@mui/material'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 export type Team = {
@@ -47,10 +47,16 @@ export const AddTeamDialog = ({
                     <p>Zawodnik 2:</p>
                     <Input style={{ width: '100%' }} {...register('player2')} />
                     <p>Kolor:</p>
-                    <Input
+                    <Select
                         style={{ width: '100%' }}
                         {...register('teamColor')}
-                    />
+                    >
+                        <MenuItem value="red">Czerwony</MenuItem>
+                        <MenuItem value="blue">Niebieski</MenuItem>
+                        <MenuItem value="green">Zielony</MenuItem>
+                        <MenuItem value="yellow">Żółty</MenuItem>
+                        <MenuItem value="purple">Fioletowy</MenuItem>
+                    </Select>
                     <p>Pozycja startowa:</p>
                     <Input
                         type="number"
