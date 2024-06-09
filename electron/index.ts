@@ -55,21 +55,21 @@ const createWindow = async () => {
   });
   clockWindow.loadURL(`${mainUrl}/clock`);
 
-  // ipcMain.on("open-clock", (event) => {
-  //   clockWindow = new BrowserWindow({
-  //     title: "Clock window",
-  //     width: 500,
-  //     height: 500,
-  //     webPreferences: {
-  //       contextIsolation: false,
-  //       nodeIntegration: true,
-  //     },
-  //     autoHideMenuBar: false,
-  //   });
-  //   clockWindow.loadURL(`${mainUrl}/clock`);
-  //
-  //   return (event.returnValue = "clock opened");
-  // });
+  ipcMain.on("open-clock", (event) => {
+    clockWindow = new BrowserWindow({
+      title: "Clock window",
+      width: 500,
+      height: 500,
+      webPreferences: {
+        contextIsolation: false,
+        nodeIntegration: true,
+      },
+      autoHideMenuBar: false,
+    });
+    clockWindow.loadURL(`${mainUrl}/clock`);
+
+    return (event.returnValue = "clock opened");
+  });
 
   ipcMain.on(
     "start-clock",
@@ -79,7 +79,7 @@ const createWindow = async () => {
       }
 
       teams = mainTeams;
-
+      browserWindow.webContents.send("start-clock", { start: true });
       clockWindow.webContents.send("start-clock", { start: true, teams });
 
       return (event.returnValue = "clock started");
@@ -129,6 +129,7 @@ const createWindow = async () => {
         return (event.returnValue = "clock not opened");
       }
 
+      browserWindow.webContents.send("set-clock", { minutes, seconds });
       clockWindow.webContents.send("set-clock", { minutes, seconds });
 
       return (event.returnValue = "clock setted");
@@ -139,7 +140,7 @@ const createWindow = async () => {
     if (!clockWindow) {
       return (event.returnValue = "clock not stopped");
     }
-
+    browserWindow.webContents.send("stop-clock", true);
     clockWindow.webContents.send("stop-clock", true);
 
     return (event.returnValue = "clock stopped");
@@ -149,6 +150,22 @@ const createWindow = async () => {
     const king = teams.shift() as Team;
     const newTeams = [...teams];
     newTeams.push(king);
+
+    teams = newTeams;
+
+    if (!clockWindow) {
+      return (event.returnValue = "clock not opened");
+    }
+
+    clockWindow.webContents.send("set-teams", { teams: newTeams });
+
+    return (event.returnValue = "clock stopped");
+  });
+
+  ipcMain.on("newPretendent", (event) => {
+    const king = teams.shift() as Team;
+    const currentPretendent = teams.shift() as Team;
+    const newTeams = [king, ...teams, currentPretendent];
 
     teams = newTeams;
 

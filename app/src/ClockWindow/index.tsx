@@ -133,7 +133,6 @@ const Clock: React.FC = () => {
                 _event: Event,
                 { start, teams }: { start: boolean; teams: Team[] }
             ) => {
-                console.log('start-clock')
                 setIsClockStart(start)
                 setTeams(teams)
                 setShowStartView(false)
@@ -352,36 +351,38 @@ const Clock: React.FC = () => {
                             </h1>
                         </div>
                     </div>
-                    <div
-                        style={{
-                            gridArea: 'team2',
-                            border: '1px solid white',
-                            display: 'flex',
-                        }}
-                    >
-                        <div style={{ width: '20%', ...centerStyle }}>
-                            <h1 style={{ fontSize: '40px', color: '#fff' }}>
-                                {teams[3].points ?? 0}
-                            </h1>
-                        </div>
+                    {teams[3] && (
                         <div
                             style={{
-                                backgroundColor: teams[3].teamColor,
-                                width: '15%',
+                                gridArea: 'team2',
+                                border: '1px solid white',
+                                display: 'flex',
                             }}
-                        ></div>
-                        <div style={{ width: '65%', ...centerStyle }}>
-                            <h1
+                        >
+                            <div style={{ width: '20%', ...centerStyle }}>
+                                <h1 style={{ fontSize: '40px', color: '#fff' }}>
+                                    {teams[3].points ?? 0}
+                                </h1>
+                            </div>
+                            <div
                                 style={{
-                                    fontSize: '20px',
-                                    textAlign: 'center',
-                                    color: '#fff',
+                                    backgroundColor: teams[3].teamColor,
+                                    width: '15%',
                                 }}
-                            >
-                                {teams[3].player1} & {teams[3].player2}
-                            </h1>
+                            ></div>
+                            <div style={{ width: '65%', ...centerStyle }}>
+                                <h1
+                                    style={{
+                                        fontSize: '20px',
+                                        textAlign: 'center',
+                                        color: '#fff',
+                                    }}
+                                >
+                                    {teams[3].player1} & {teams[3].player2}
+                                </h1>
+                            </div>
                         </div>
-                    </div>
+                    )}
                     {teams[4] && (
                         <div
                             style={{

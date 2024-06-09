@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { theme } from './theme/muiTheme'
 
-import { SnackbarData } from '@src/types/snackbar'
 import { SetTime } from '@src/components/SetTime.tsx'
 import { AddTeamDialog, Team } from '@src/components/AddTeamDialog.tsx'
 import { EditTeamDialog } from '@src/components/EditTeamDialog.tsx'
@@ -14,13 +13,11 @@ const { ipcRenderer } = window.require('electron')
 // APP SHOULD BE A WRAPPER AND WE HAVE TO CREATE TO SEPARATE COMPONENTS
 
 const App: React.FC = () => {
+    const [isClockStart, setIsClockStart] = useState(false)
+    const [timer, setTimer] = useState('00:00')
+    const Ref = useRef<any>()
     const [isOpenAddTeamDialog, setIsOpenAddTeamDialog] = React.useState(false)
-    const [snackbarData, setSnackbarData] = React.useState<SnackbarData>({
-        type: 'info',
-        showSnackBar: false,
-        message: '',
-    })
-
+    const test = useRef(0)
     const [teams, setTeams] = useState<Team[]>([])
     const [edittedUserIndex, setEdittedUserIndex] = useState<number | null>(
         null
@@ -44,22 +41,39 @@ const App: React.FC = () => {
     }
 
     const newPretendent = async () => {
-        const king = teams.shift() as Team
-        const currentPretendent = teams.shift() as Team
-        const newTeams = [king, ...teams, currentPretendent]
-        setTeams(newTeams)
-        await ipcRenderer.sendSync('setTeams', { teams: newTeams })
+        await ipcRenderer.sendSync('newPretendent')
     }
 
     const pointForKing = async () => {
         await ipcRenderer.sendSync('pointForKing')
     }
 
+    const stopTimer = () => {
+        clearInterval(Ref.current)
+    }
+
     React.useEffect(() => {
         ipcRenderer.on(
-            'setSnackbar',
-            (_event: Event, _snackbarData: SnackbarData) => {
-                setSnackbarData(_snackbarData)
+            'start-clock',
+            (_event: Event, { start }: { start: boolean }) => {
+                setIsClockStart(start)
+            }
+        )
+
+        ipcRenderer.on('stop-clock', (_event: Event) => {
+            setIsClockStart(false)
+            stopTimer()
+        })
+
+        ipcRenderer.on(
+            'set-clock',
+            (
+                _event: Event,
+                { minutes, seconds }: { minutes: number; seconds: number }
+            ) => {
+                setTimer(
+                    `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+                )
             }
         )
 
@@ -85,6 +99,72 @@ const App: React.FC = () => {
         setTeams(sortedTeams)
     }
 
+    const getTimeRemaining = (e: string) => {
+        const total = Date.parse(e) - Date.parse(new Date().toString())
+        const seconds = Math.floor((total / 1000) % 60)
+        const minutes = Math.floor((total / 1000 / 60) % 60)
+        return {
+            total,
+            minutes,
+            seconds,
+        }
+    }
+
+    const startTimer = (e: string) => {
+        let { total, minutes, seconds } = getTimeRemaining(e)
+        if (total >= 0) {
+            test.current = test.current + 1
+            setTimer(
+                (minutes > 9 ? minutes : '0' + minutes) +
+                    ':' +
+                    (seconds > 9 ? seconds : '0' + seconds)
+            )
+        }
+    }
+
+    const clearTimer = (e: string) => {
+        // If you adjust it you should also need to
+        // adjust the Endtime formula we are about
+        // to code next
+        if (timer === '00:00') {
+            setTimer('15:00')
+        }
+
+        // If you try to remove this line the
+        // updating of timer Variable will be
+        // after 1000ms or 1sec
+        if (Ref.current) clearInterval(Ref.current)
+
+        Ref.current = setInterval(() => {
+            startTimer(e)
+        }, 1000)
+    }
+
+    const getDeadTime = () => {
+        let deadline = new Date()
+
+        const timerDivided = timer.split(':')
+        const minutes = parseInt(timerDivided[0])
+        const seconds = parseInt(timerDivided[1])
+
+        if (minutes === 0 && seconds === 0) {
+            // This is where you need to adjust if
+            // you entend to add more time
+            deadline.setSeconds(deadline.getSeconds() + 900)
+            return deadline.toString()
+        }
+
+        deadline.setMinutes(deadline.getMinutes() + minutes)
+        deadline.setSeconds(deadline.getSeconds() + seconds)
+        return deadline.toString()
+    }
+
+    React.useEffect(() => {
+        if (isClockStart) {
+            clearTimer(getDeadTime())
+        }
+    }, [isClockStart])
+
     return (
         <ThemeProvider theme={theme}>
             <div>
@@ -108,6 +188,7 @@ const App: React.FC = () => {
                             onClick={async () => {
                                 await onClickStartClock()
                             }}
+                            disabled={teams.length < 3}
                         >
                             START
                         </button>
@@ -166,6 +247,10 @@ const App: React.FC = () => {
                             </div>
                         ))}
                     </div>
+                </div>
+                <div>
+                    <h4>Zegar</h4>
+                    <h1>{timer}</h1>
                 </div>
                 {edittedUserIndex !== null && (
                     <EditTeamDialog
