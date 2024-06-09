@@ -6,6 +6,7 @@ import { Team } from '@src/components/AddTeamDialog.tsx'
 import Queen from '@src/assets/queen.png'
 import King from '@src/assets/king.png'
 import Crown from '@src/assets/crown.png'
+import Poster from '@src/assets/poster.png'
 import AlumetaltechLogo from '@src/assets/alumetaltech.png'
 
 const { ipcRenderer } = window.require('electron')
@@ -16,6 +17,7 @@ const centerStyle = {
 }
 const Clock: React.FC = () => {
     const [isClockStart, setIsClockStart] = useState(false)
+    const [showStartView, setShowStartView] = useState(true)
 
     const test = useRef(0)
 
@@ -134,6 +136,7 @@ const Clock: React.FC = () => {
                 console.log('start-clock')
                 setIsClockStart(start)
                 setTeams(teams)
+                setShowStartView(false)
             }
         )
 
@@ -183,6 +186,24 @@ const Clock: React.FC = () => {
             clearTimer(getDeadTime())
         }
     }, [isClockStart])
+
+    if (showStartView) {
+        return (
+            <ThemeProvider theme={theme}>
+                <div style={{ display: 'flex', height: '100vh' }}>
+                    <img
+                        src={Poster}
+                        alt="Poster"
+                        style={{
+                            display: 'flex',
+                            width: '100%',
+                            height: '100%',
+                        }}
+                    />
+                </div>
+            </ThemeProvider>
+        )
+    }
 
     return (
         <ThemeProvider theme={theme}>

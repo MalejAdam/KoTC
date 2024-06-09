@@ -43,21 +43,33 @@ const createWindow = async () => {
     //TODO: when electron backend implementation of translation is  finished we have to add event with flag change
   });
 
-  ipcMain.on("open-clock", (event) => {
-    clockWindow = new BrowserWindow({
-      title: "Clock window",
-      width: 500,
-      height: 500,
-      webPreferences: {
-        contextIsolation: false,
-        nodeIntegration: true,
-      },
-      autoHideMenuBar: false,
-    });
-    clockWindow.loadURL(`${mainUrl}/clock`);
-
-    return (event.returnValue = "clock opened");
+  clockWindow = new BrowserWindow({
+    title: "Clock window",
+    width: 500,
+    height: 500,
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true,
+    },
+    autoHideMenuBar: false,
   });
+  clockWindow.loadURL(`${mainUrl}/clock`);
+
+  // ipcMain.on("open-clock", (event) => {
+  //   clockWindow = new BrowserWindow({
+  //     title: "Clock window",
+  //     width: 500,
+  //     height: 500,
+  //     webPreferences: {
+  //       contextIsolation: false,
+  //       nodeIntegration: true,
+  //     },
+  //     autoHideMenuBar: false,
+  //   });
+  //   clockWindow.loadURL(`${mainUrl}/clock`);
+  //
+  //   return (event.returnValue = "clock opened");
+  // });
 
   ipcMain.on(
     "start-clock",
