@@ -11,8 +11,6 @@ export type Team = {
 };
 
 const createWindow = async () => {
-  const isDev = process.env.APP_DEV === "true";
-  const isBuildLocal = process.env.BUILD_LOCAL === "true";
   const mainUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
   let teams = [] as Team[];
@@ -28,6 +26,7 @@ const createWindow = async () => {
     autoHideMenuBar: false,
   });
 
+  let stoppedClock = false;
   let clockWindow = null;
 
   globalShortcut.register("f5", function () {
@@ -78,7 +77,10 @@ const createWindow = async () => {
         return (event.returnValue = "clock not opened");
       }
 
-      teams = mainTeams;
+      if (!stoppedClock) {
+        teams = mainTeams;
+      }
+
       browserWindow.webContents.send("start-clock", { start: true });
       clockWindow.webContents.send("start-clock", { start: true, teams });
 
@@ -94,6 +96,19 @@ const createWindow = async () => {
     teams = mainTeams;
 
     clockWindow.webContents.send("set-teams", { teams: mainTeams });
+
+    return (event.returnValue = "teams setted");
+  });
+
+  ipcMain.on("restart", (event) => {
+    if (!clockWindow) {
+      return (event.returnValue = "clock not opened");
+    }
+
+    teams = [];
+    stoppedClock = false;
+
+    clockWindow.webContents.send("restart");
 
     return (event.returnValue = "teams setted");
   });
@@ -117,7 +132,7 @@ const createWindow = async () => {
       const index = teams.findIndex((team) => team.teamColor === color);
       team.spentTime = team.spentTime + spentTime;
       teams[index] = team;
-      console.log("teams", teams);
+      browserWindow.webContents.send("set-teams", { teams });
       return (event.returnValue = "time setted");
     },
   );
@@ -140,8 +155,18 @@ const createWindow = async () => {
     if (!clockWindow) {
       return (event.returnValue = "clock not stopped");
     }
+    stoppedClock = true;
     browserWindow.webContents.send("stop-clock", true);
     clockWindow.webContents.send("stop-clock", true);
+
+    return (event.returnValue = "clock stopped");
+  });
+
+  ipcMain.on("remove-team", (event, color: string) => {
+    teams = teams.filter((team) => team.teamColor !== color);
+
+    browserWindow.webContents.send("set-teams", { teams });
+    clockWindow.webContents.send("set-teams", { teams });
 
     return (event.returnValue = "clock stopped");
   });
@@ -191,6 +216,7 @@ const createWindow = async () => {
     }
 
     clockWindow.webContents.send("set-teams", { teams: newTeams });
+    browserWindow.webContents.send("set-teams", { teams: newTeams });
 
     return (event.returnValue = "clock stopped");
   });

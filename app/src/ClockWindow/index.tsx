@@ -163,14 +163,24 @@ const Clock: React.FC = () => {
             }
         )
 
+        ipcRenderer.on('restart', (_event: Event) => {
+            setShowStartView(true)
+            setTimer('00:00')
+        })
+
+        ipcRenderer.on('remove-team', (_event: Event, color: string) => {
+            const newTeams = teams.filter((team) => team.teamColor !== color)
+            setTeams(newTeams)
+        })
+
         ipcRenderer.on(
             'set-clock',
             (
                 _event: Event,
-                { minutes, seconds }: { minutes: number; seconds: number }
+                { minutes, seconds }: { minutes: string; seconds: string }
             ) => {
                 setTimer(
-                    `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+                    `${parseInt(minutes) < 10 ? '0' : ''}${parseInt(minutes)}:${parseInt(seconds) ? '0' : ''}${parseInt(seconds)}`
                 )
             }
         )
@@ -242,11 +252,12 @@ const Clock: React.FC = () => {
                             src={AlumetaltechLogo}
                             alt="Alumetaltech"
                             height={200}
+                            style={{ marginTop: '-40px' }}
                         />
                         <h1
                             style={{
                                 ...centerStyle,
-                                fontSize: '40px',
+                                fontSize: '80px',
                                 color: '#fff',
                             }}
                         >
@@ -257,7 +268,6 @@ const Clock: React.FC = () => {
                                 ...centerStyle,
                                 fontSize: '20px',
                                 color: '#fff',
-                                marginTop: '20px',
                             }}
                         >
                             COUNTDOWN

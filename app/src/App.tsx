@@ -27,12 +27,22 @@ const App: React.FC = () => {
         await ipcRenderer.sendSync('open-clock')
     }
 
+    const onRemoveUser = async (color?: string) => {
+        await ipcRenderer.sendSync('remove-team', color)
+    }
+
     const onClickStartClock = async () => {
         await ipcRenderer.sendSync('start-clock', { teams })
     }
 
     const onClickStopClock = async () => {
         await ipcRenderer.sendSync('stop-clock')
+    }
+
+    const onClickRestart = async () => {
+        setTeams([])
+        setTimer('00:00')
+        await ipcRenderer.sendSync('restart')
     }
 
     const pretendentToKing = async () => {
@@ -60,6 +70,16 @@ const App: React.FC = () => {
             }
         )
 
+        ipcRenderer.on(
+            'set-teams',
+            (_event: Event, { teams }: { teams: Team[] }) => {
+                const sortedTeams = teams.sort(
+                    (a, b) => (a.startPosition ?? 5) - (b.startPosition ?? 5)
+                )
+                setTeams(sortedTeams)
+            }
+        )
+
         ipcRenderer.on('stop-clock', (_event: Event) => {
             setIsClockStart(false)
             stopTimer()
@@ -69,10 +89,10 @@ const App: React.FC = () => {
             'set-clock',
             (
                 _event: Event,
-                { minutes, seconds }: { minutes: number; seconds: number }
+                { minutes, seconds }: { minutes: string; seconds: string }
             ) => {
                 setTimer(
-                    `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+                    `${parseInt(minutes) < 10 ? '0' : ''}${parseInt(minutes)}:${parseInt(seconds) ? '0' : ''}${parseInt(seconds)}`
                 )
             }
         )
@@ -80,7 +100,7 @@ const App: React.FC = () => {
         return () => {
             ipcRenderer.removeAllListeners('isLoading')
         }
-    }, [])
+    }, [teams])
 
     const handleAddTeam = (team: Team) => setTeams([...teams, team])
     const editTeam = (team: Team) => {
@@ -167,103 +187,162 @@ const App: React.FC = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <div>
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    justifyContent: 'space-between',
+                }}
+            >
                 <div>
-                    <h4>Akcje</h4>
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: '10px',
-                        }}
-                    >
-                        <button
-                            onClick={async () => {
-                                await onClickOpenClock()
+                    <div>
+                        <h4>Akcje</h4>
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 1fr',
+                                gap: '10px',
                             }}
                         >
-                            Otwórz zegar
-                        </button>
-                        <button
-                            onClick={async () => {
-                                await onClickStartClock()
-                            }}
-                            disabled={teams.length < 3}
-                        >
-                            START
-                        </button>
-                        <button
-                            onClick={async () => {
-                                await onClickStopClock()
-                            }}
-                        >
-                            STOP
-                        </button>
-                        <button onClick={() => setIsOpenAddTeamDialog(true)}>
-                            Dodaj drużynę
-                        </button>
-                        <button onClick={pretendentToKing}>
-                            Pretendent na króla
-                        </button>
-                        <button onClick={newPretendent}>Nowy pretendent</button>
-                        <button onClick={pointForKing}>Punkt dla króla</button>
-                    </div>
-                </div>
-                <SetTime />
-                <AddTeamDialog
-                    isOpen={isOpenAddTeamDialog}
-                    handleClose={setIsOpenAddTeamDialog}
-                    handleAddTeam={handleAddTeam}
-                />
-                <div>
-                    <h4>Drużyny</h4>
-                    <button onClick={sortTeams}>Sortuj po pozycji</button>
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            width: 'fit-content',
-                            gap: '10px',
-                        }}
-                    >
-                        {teams.map((team, index) => (
-                            <div
-                                key={`${team.player1}-${team.player2}`}
-                                style={{
-                                    display: 'flex',
-                                    gap: '10px',
-                                    justifyContent: 'space-between',
+                            <button
+                                onClick={async () => {
+                                    await onClickOpenClock()
                                 }}
                             >
-                                <p style={{ margin: 0 }}>
-                                    <b>{index + 1}.</b> {team.player1} -{' '}
-                                    {team.player2}
-                                </p>
-                                <button
-                                    onClick={() => setEdittedUserIndex(index)}
-                                >
-                                    Edytuj
-                                </button>
-                            </div>
-                        ))}
+                                Otwórz zegar
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    await onClickStartClock()
+                                }}
+                                disabled={teams.length < 3}
+                            >
+                                START
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    await onClickStopClock()
+                                }}
+                            >
+                                STOP
+                            </button>
+                            <button
+                                onClick={() => setIsOpenAddTeamDialog(true)}
+                            >
+                                Dodaj drużynę
+                            </button>
+                            <button onClick={pretendentToKing}>
+                                Pretendent na króla
+                            </button>
+                            <button onClick={newPretendent}>
+                                Nowy pretendent
+                            </button>
+                            <button
+                                onClick={pointForKing}
+                                style={{
+                                    backgroundColor: '#f5cc00',
+                                    border: '1px solid #f5cc00',
+                                }}
+                            >
+                                Punkt dla króla
+                            </button>
+                        </div>
                     </div>
+                    <SetTime />
+                    <AddTeamDialog
+                        isOpen={isOpenAddTeamDialog}
+                        handleClose={setIsOpenAddTeamDialog}
+                        handleAddTeam={handleAddTeam}
+                    />
+                    <div>
+                        <h4>Drużyny</h4>
+                        <button onClick={sortTeams}>Sortuj po pozycji</button>
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                width: 'fit-content',
+                                gap: '10px',
+                            }}
+                        >
+                            {teams.map((team, index) => (
+                                <div
+                                    key={`${team.player1}-${team.player2}`}
+                                    style={{
+                                        display: 'flex',
+                                        gap: '10px',
+                                        justifyContent: 'space-between',
+                                    }}
+                                >
+                                    <p style={{ margin: 0 }}>
+                                        <b>{index + 1}.</b> {team.player1} -{' '}
+                                        {team.player2}
+                                    </p>
+                                    <button
+                                        onClick={() =>
+                                            setEdittedUserIndex(index)
+                                        }
+                                    >
+                                        Edytuj
+                                    </button>
+                                    {team.teamColor && teams.length > 3 && (
+                                        <button
+                                            onClick={() =>
+                                                onRemoveUser(team.teamColor)
+                                            }
+                                        >
+                                            Usuń
+                                        </button>
+                                    )}
+                                    <p style={{ margin: 0 }}>
+                                        punkty: {team.points || 0} spędzony
+                                        czas:{' '}
+                                        {team.spentTime
+                                            ? Math.floor(team.spentTime / 60)
+                                            : '00'}
+                                        :
+                                        {team.spentTime
+                                            ? team.spentTime % 60 < 10
+                                                ? `0${team.spentTime % 60}`
+                                                : team.spentTime % 60
+                                            : '00'}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Zegar</h4>
+                        <h1>{timer}</h1>
+                    </div>
+                    {edittedUserIndex !== null && (
+                        <EditTeamDialog
+                            isOpen
+                            player1={teams[edittedUserIndex].player1}
+                            player2={teams[edittedUserIndex].player2}
+                            teamColor={teams[edittedUserIndex].teamColor}
+                            startPosition={
+                                teams[edittedUserIndex].startPosition
+                            }
+                            points={teams[edittedUserIndex].points}
+                            handleClose={handleEditTeamClose}
+                            handleEditTeam={editTeam}
+                        />
+                    )}
                 </div>
                 <div>
-                    <h4>Zegar</h4>
-                    <h1>{timer}</h1>
+                    <button
+                        style={{
+                            backgroundColor: 'red',
+                            marginBottom: '40px',
+                            marginLeft: '40px',
+                        }}
+                        onClick={onClickRestart}
+                    >
+                        RESTART
+                    </button>
                 </div>
-                {edittedUserIndex !== null && (
-                    <EditTeamDialog
-                        isOpen
-                        player1={teams[edittedUserIndex].player1}
-                        player2={teams[edittedUserIndex].player2}
-                        teamColor={teams[edittedUserIndex].teamColor}
-                        startPosition={teams[edittedUserIndex].startPosition}
-                        points={teams[edittedUserIndex].points}
-                        handleClose={handleEditTeamClose}
-                        handleEditTeam={editTeam}
-                    />
-                )}
             </div>
         </ThemeProvider>
     )
