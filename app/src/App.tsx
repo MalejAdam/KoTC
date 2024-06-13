@@ -42,6 +42,7 @@ const App: React.FC = () => {
     const onClickRestart = async () => {
         setTeams([])
         setTimer('00:00')
+        await ipcRenderer.sendSync('stop-clock')
         await ipcRenderer.sendSync('restart')
     }
 
@@ -56,6 +57,7 @@ const App: React.FC = () => {
 
     const pointForKing = async () => {
         await ipcRenderer.sendSync('pointForKing')
+        newPretendent()
     }
 
     const stopTimer = () => {
