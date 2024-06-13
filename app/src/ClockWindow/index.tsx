@@ -9,6 +9,20 @@ import Crown from '@src/assets/crown.png'
 import Poster from '@src/assets/poster.png'
 import AlumetaltechLogo from '@src/assets/alumetaltech.png'
 
+const last10sec = [
+    '00:10',
+    '00:09',
+    '00:08',
+    '00:07',
+    '00:06',
+    '00:05',
+    '00:04',
+    '00:03',
+    '00:02',
+    '00:01',
+    '00:00',
+]
+
 const { ipcRenderer } = window.require('electron')
 const centerStyle = {
     display: 'flex',
@@ -180,7 +194,7 @@ const Clock: React.FC = () => {
                 { minutes, seconds }: { minutes: string; seconds: string }
             ) => {
                 setTimer(
-                    `${parseInt(minutes) < 10 ? '0' : ''}${parseInt(minutes)}:${parseInt(seconds) ? '0' : ''}${parseInt(seconds)}`
+                    `${parseInt(minutes) < 10 ? '0' : ''}${parseInt(minutes)}:${parseInt(seconds) < 10 ? '0' : ''}${parseInt(seconds)}`
                 )
             }
         )
@@ -258,7 +272,9 @@ const Clock: React.FC = () => {
                             style={{
                                 ...centerStyle,
                                 fontSize: '80px',
-                                color: '#fff',
+                                color: last10sec.includes(timer)
+                                    ? 'red'
+                                    : '#fff',
                             }}
                         >
                             {timer}

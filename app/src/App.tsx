@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { theme } from './theme/muiTheme'
 
 import { SetTime } from '@src/components/SetTime.tsx'
 import { AddTeamDialog, Team } from '@src/components/AddTeamDialog.tsx'
 import { EditTeamDialog } from '@src/components/EditTeamDialog.tsx'
+import testSound from '../src/assets/sound.mp3'
 
 const { ipcRenderer } = window.require('electron')
 
@@ -13,8 +14,9 @@ const { ipcRenderer } = window.require('electron')
 // APP SHOULD BE A WRAPPER AND WE HAVE TO CREATE TO SEPARATE COMPONENTS
 
 const App: React.FC = () => {
+    const audio = new Audio('../assets/sound.mp3')
     const [isClockStart, setIsClockStart] = useState(false)
-    const [timer, setTimer] = useState('00:00')
+    const [timer, setTimer] = useState('15:00')
     const Ref = useRef<any>()
     const [isOpenAddTeamDialog, setIsOpenAddTeamDialog] = React.useState(false)
     const test = useRef(0)
@@ -41,7 +43,7 @@ const App: React.FC = () => {
 
     const onClickRestart = async () => {
         setTeams([])
-        setTimer('00:00')
+        setTimer('15:00')
         await ipcRenderer.sendSync('stop-clock')
         await ipcRenderer.sendSync('restart')
     }
@@ -94,7 +96,7 @@ const App: React.FC = () => {
                 { minutes, seconds }: { minutes: string; seconds: string }
             ) => {
                 setTimer(
-                    `${parseInt(minutes) < 10 ? '0' : ''}${parseInt(minutes)}:${parseInt(seconds) ? '0' : ''}${parseInt(seconds)}`
+                    `${parseInt(minutes) < 10 ? '0' : ''}${parseInt(minutes)}:${parseInt(seconds) < 10 ? '0' : ''}${parseInt(seconds)}`
                 )
             }
         )
@@ -104,6 +106,11 @@ const App: React.FC = () => {
         }
     }, [teams])
 
+    useEffect(() => {
+        if (timer === '00:00') {
+            new Audio(testSound).play()
+        }
+    }, [timer])
     const handleAddTeam = (team: Team) => setTeams([...teams, team])
     const editTeam = (team: Team) => {
         const newTeams = [...teams]
@@ -277,9 +284,23 @@ const App: React.FC = () => {
                                         justifyContent: 'space-between',
                                     }}
                                 >
-                                    <p style={{ margin: 0 }}>
-                                        <b>{index + 1}.</b> {team.player1} -{' '}
-                                        {team.player2}
+                                    <p
+                                        style={{
+                                            margin: 0,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <b>{index + 1}.</b>{' '}
+                                        <div
+                                            style={{
+                                                backgroundColor: team.teamColor,
+                                                width: '10px',
+                                                margin: '0 10px',
+                                                height: '80%',
+                                            }}
+                                        ></div>
+                                        {team.player1} - {team.player2}
                                     </p>
                                     <button
                                         onClick={() =>
