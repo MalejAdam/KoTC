@@ -75,10 +75,10 @@ const App: React.FC = () => {
         ipcRenderer.on(
             'set-teams',
             (_event: Event, { teams }: { teams: Team[] }) => {
-                const sortedTeams = teams.sort(
-                    (a, b) => (a.startPosition ?? 5) - (b.startPosition ?? 5)
-                )
-                setTeams(sortedTeams)
+                // const sortedTeams = teams.sort(
+                //     (a, b) => (a.startPosition ?? 5) - (b.startPosition ?? 5)
+                // )
+                setTeams(teams)
             }
         )
 

@@ -199,6 +199,7 @@ const createWindow = async () => {
     }
 
     clockWindow.webContents.send("set-teams", { teams: newTeams });
+    browserWindow.webContents.send("set-teams", { teams: newTeams });
 
     return (event.returnValue = "clock stopped");
   });
