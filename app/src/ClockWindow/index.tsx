@@ -6,7 +6,7 @@ import { Team } from '@src/components/AddTeamDialog.tsx'
 import Queen from '@src/assets/queen.png'
 import King from '@src/assets/king.png'
 import Crown from '@src/assets/crown.png'
-import Poster from '@src/assets/poster.png'
+import Poster from '@src/assets/poster.jpg'
 import AlumetaltechLogo from '@src/assets/alumetaltech.png'
 
 const last10sec = [
