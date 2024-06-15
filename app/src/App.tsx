@@ -14,12 +14,10 @@ const { ipcRenderer } = window.require('electron')
 // APP SHOULD BE A WRAPPER AND WE HAVE TO CREATE TO SEPARATE COMPONENTS
 
 const App: React.FC = () => {
-    const audio = new Audio('../assets/sound.mp3')
     const [isClockStart, setIsClockStart] = useState(false)
     const [timer, setTimer] = useState('15:00')
     const Ref = useRef<any>()
     const [isOpenAddTeamDialog, setIsOpenAddTeamDialog] = React.useState(false)
-    const test = useRef(0)
     const [teams, setTeams] = useState<Team[]>([])
     const [edittedUserIndex, setEdittedUserIndex] = useState<number | null>(
         null
@@ -59,6 +57,7 @@ const App: React.FC = () => {
 
     const pointForKing = async () => {
         await ipcRenderer.sendSync('pointForKing')
+        await ipcRenderer.sendSync('getTimeOnKingSite')
         newPretendent()
     }
 
@@ -112,20 +111,23 @@ const App: React.FC = () => {
         }
     }, [timer])
     const handleAddTeam = (team: Team) => setTeams([...teams, team])
-    const editTeam = (team: Team) => {
+    const editTeam = async (team: Team) => {
         const newTeams = [...teams]
+        console.log(team)
 
         if (edittedUserIndex === null) return
 
         newTeams[edittedUserIndex] = team
         setTeams(newTeams)
+        await ipcRenderer.sendSync('setTeams', { teams: newTeams })
     }
     const handleEditTeamClose = () => setEdittedUserIndex(null)
-    const sortTeams = () => {
+    const sortTeams = async () => {
         const sortedTeams = [...teams].sort(
             (a, b) => (a.startPosition ?? 5) - (b.startPosition ?? 5)
         )
         setTeams(sortedTeams)
+        await ipcRenderer.sendSync('setTeams', { teams: sortedTeams })
     }
 
     const getTimeRemaining = (e: string) => {
@@ -142,7 +144,6 @@ const App: React.FC = () => {
     const startTimer = (e: string) => {
         let { total, minutes, seconds } = getTimeRemaining(e)
         if (total >= 0) {
-            test.current = test.current + 1
             setTimer(
                 (minutes > 9 ? minutes : '0' + minutes) +
                     ':' +

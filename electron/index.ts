@@ -125,6 +125,18 @@ const createWindow = async () => {
     return (event.returnValue = "getTeamTimeOnKingSite");
   });
 
+  ipcMain.on("getTimeOnKingSite", (event) => {
+    if (!clockWindow) {
+      return (event.returnValue = "clock not opened");
+    }
+    const king = teams[0];
+    clockWindow.webContents.send("getTimeOnKingSite", {
+      color: king.teamColor,
+    });
+
+    return (event.returnValue = "getTimeOnKingSite");
+  });
+
   ipcMain.on(
     "setTeamTimeOnKingSite",
     (event, { color, spentTime }: { color: string; spentTime: number }) => {

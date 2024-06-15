@@ -161,7 +161,17 @@ const Clock: React.FC = () => {
         ipcRenderer.on(
             'getTeamTimeOnKingSite',
             async (_event: Event, { color }: { color: string }) => {
-                console.log('kingTime', test.current)
+                await ipcRenderer.sendSync('setTeamTimeOnKingSite', {
+                    color,
+                    spentTime: test.current,
+                })
+                test.current = 0
+            }
+        )
+
+        ipcRenderer.on(
+            'getTimeOnKingSite',
+            async (_event: Event, { color }: { color: string }) => {
                 await ipcRenderer.sendSync('setTeamTimeOnKingSite', {
                     color,
                     spentTime: test.current,
@@ -180,6 +190,7 @@ const Clock: React.FC = () => {
         ipcRenderer.on('restart', (_event: Event) => {
             setShowStartView(true)
             setTimer('00:00')
+            test.current = 0
         })
 
         ipcRenderer.on('remove-team', (_event: Event, color: string) => {
@@ -227,6 +238,8 @@ const Clock: React.FC = () => {
             </ThemeProvider>
         )
     }
+
+    console.log('1231231231231', test.current)
 
     return (
         <ThemeProvider theme={theme}>

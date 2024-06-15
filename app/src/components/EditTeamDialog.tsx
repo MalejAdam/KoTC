@@ -29,10 +29,16 @@ export const EditTeamDialog = ({
         },
     })
 
-    const onSubmit = ({ player1, player2, teamColor, startPosition }: Team) => {
+    const onSubmit = ({
+        player1,
+        player2,
+        teamColor,
+        startPosition,
+        points,
+    }: Team) => {
         if (!player1 || !player2) return
 
-        handleEditTeam({ player1, player2, teamColor, startPosition })
+        handleEditTeam({ player1, player2, teamColor, startPosition, points })
         handleClose(false)
     }
 
@@ -48,7 +54,7 @@ export const EditTeamDialog = ({
                     <p>Kolor:</p>
                     <Select
                         style={{ width: '100%' }}
-                        value={teamColor}
+                        defaultValue={teamColor}
                         {...register('teamColor')}
                     >
                         <MenuItem value="red">Czerwony</MenuItem>
