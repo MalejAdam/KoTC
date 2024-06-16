@@ -46,6 +46,12 @@ const App: React.FC = () => {
         await ipcRenderer.sendSync('restart')
     }
 
+    const onClickNewRound = async () => {
+        setTimer('15:00')
+        await ipcRenderer.sendSync('stop-clock')
+        await ipcRenderer.sendSync('newRound')
+    }
+
     const pretendentToKing = async () => {
         await ipcRenderer.sendSync('pretendentToKing')
         await ipcRenderer.sendSync('getTeamTimeOnKingSite')
@@ -365,6 +371,16 @@ const App: React.FC = () => {
                         onClick={onClickRestart}
                     >
                         RESTART
+                    </button>
+                    <button
+                        style={{
+                            backgroundColor: 'orange',
+                            marginBottom: '40px',
+                            marginLeft: '40px',
+                        }}
+                        onClick={onClickNewRound}
+                    >
+                        NOWA RUNDA
                     </button>
                 </div>
             </div>

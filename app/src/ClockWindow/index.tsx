@@ -153,6 +153,12 @@ const Clock: React.FC = () => {
             }
         )
 
+        ipcRenderer.on('newRound', (_event: Event, newRound: boolean) => {
+            if (newRound) {
+                setTimer('15:00')
+            }
+        })
+
         ipcRenderer.on('stop-clock', (_event: Event) => {
             setIsClockStart(false)
             stopTimer()

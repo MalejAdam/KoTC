@@ -113,6 +113,26 @@ const createWindow = async () => {
     return (event.returnValue = "teams setted");
   });
 
+  ipcMain.on("newRound", (event) => {
+    if (!clockWindow) {
+      return (event.returnValue = "clock not opened");
+    }
+
+    const resetedTeams = teams.map((team) => ({
+      ...team,
+      spentTime: 0,
+      points: 0,
+    }));
+
+    teams = resetedTeams;
+
+    clockWindow.webContents.send("set-teams", { teams: resetedTeams });
+    clockWindow.webContents.send("newRound", true);
+    browserWindow.webContents.send("set-teams", { teams: resetedTeams });
+
+    return (event.returnValue = "teams setted");
+  });
+
   ipcMain.on("getTeamTimeOnKingSite", (event) => {
     if (!clockWindow) {
       return (event.returnValue = "clock not opened");
