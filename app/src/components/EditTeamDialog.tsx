@@ -38,7 +38,16 @@ export const EditTeamDialog = ({
     }: Team) => {
         if (!player1 || !player2) return
 
-        handleEditTeam({ player1, player2, teamColor, startPosition, points })
+        console.log({ player1, player2, teamColor, startPosition, points })
+        const pointsToUpdate = parseInt(points?.toString() || '0')
+        const positionToUpdate = parseInt(startPosition?.toString() || '0')
+        handleEditTeam({
+            player1,
+            player2,
+            teamColor,
+            startPosition: positionToUpdate,
+            points: pointsToUpdate,
+        })
         handleClose(false)
     }
 

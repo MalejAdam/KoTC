@@ -82,10 +82,6 @@ const App: React.FC = () => {
         ipcRenderer.on(
             'set-teams',
             (_event: Event, { teams }: { teams: Team[] }) => {
-                // const sortedTeams = teams.sort(
-                //     (a, b) => (a.startPosition ?? 5) - (b.startPosition ?? 5)
-                // )
-                console.log(teams)
                 setTeams(teams)
             }
         )
@@ -113,7 +109,7 @@ const App: React.FC = () => {
     }, [teams])
 
     useEffect(() => {
-        if (timer === '00:02') {
+        if (timer === '00:01') {
             new Audio(testSound).play()
         }
     }, [timer])
@@ -124,7 +120,6 @@ const App: React.FC = () => {
     }
     const editTeam = async (team: Team) => {
         const newTeams = [...teams]
-        console.log(team)
 
         if (edittedUserIndex === null) return
 
