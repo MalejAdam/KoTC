@@ -85,6 +85,7 @@ const App: React.FC = () => {
                 // const sortedTeams = teams.sort(
                 //     (a, b) => (a.startPosition ?? 5) - (b.startPosition ?? 5)
                 // )
+                console.log(teams)
                 setTeams(teams)
             }
         )
@@ -112,11 +113,15 @@ const App: React.FC = () => {
     }, [teams])
 
     useEffect(() => {
-        if (timer === '00:00') {
+        if (timer === '00:02') {
             new Audio(testSound).play()
         }
     }, [timer])
-    const handleAddTeam = (team: Team) => setTeams([...teams, team])
+    const handleAddTeam = async (team: Team) => {
+        const newTeams = [...teams, team]
+        setTeams(newTeams)
+        await ipcRenderer.sendSync('setTeams', { teams: newTeams })
+    }
     const editTeam = async (team: Team) => {
         const newTeams = [...teams]
         console.log(team)

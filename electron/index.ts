@@ -160,9 +160,11 @@ const createWindow = async () => {
   ipcMain.on(
     "setTeamTimeOnKingSite",
     (event, { color, spentTime }: { color: string; spentTime: number }) => {
+      console.log("setTeamTimeOnKingSite", color, spentTime);
       const team = teams.find((team) => team.teamColor === color);
       const index = teams.findIndex((team) => team.teamColor === color);
-      team.spentTime = team.spentTime + spentTime;
+      team.spentTime = (team.spentTime ?? 0) + spentTime;
+      console.log("team", team, index);
       teams[index] = team;
       browserWindow.webContents.send("set-teams", { teams });
       return (event.returnValue = "time setted");
@@ -195,6 +197,7 @@ const createWindow = async () => {
   });
 
   ipcMain.on("remove-team", (event, color: string) => {
+    console.log("teams1232131", teams);
     teams = teams.filter((team) => team.teamColor !== color);
 
     browserWindow.webContents.send("set-teams", { teams });

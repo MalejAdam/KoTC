@@ -156,6 +156,7 @@ const Clock: React.FC = () => {
         ipcRenderer.on('newRound', (_event: Event, newRound: boolean) => {
             if (newRound) {
                 setTimer('15:00')
+                test.current = 0
             }
         })
 
@@ -178,6 +179,7 @@ const Clock: React.FC = () => {
         ipcRenderer.on(
             'getTimeOnKingSite',
             async (_event: Event, { color }: { color: string }) => {
+                console.log('test.current', test.current)
                 await ipcRenderer.sendSync('setTeamTimeOnKingSite', {
                     color,
                     spentTime: test.current,
@@ -245,8 +247,6 @@ const Clock: React.FC = () => {
         )
     }
 
-    console.log('1231231231231', test.current)
-
     return (
         <ThemeProvider theme={theme}>
             <div
@@ -290,7 +290,8 @@ const Clock: React.FC = () => {
                         <h1
                             style={{
                                 ...centerStyle,
-                                fontSize: '80px',
+                                fontSize: '110px',
+                                marginTop: '-30px',
                                 color: last10sec.includes(timer)
                                     ? 'red'
                                     : '#fff',
