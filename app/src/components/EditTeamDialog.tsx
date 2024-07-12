@@ -66,11 +66,11 @@ export const EditTeamDialog = ({
                         defaultValue={teamColor}
                         {...register('teamColor')}
                     >
+                        <MenuItem value="white">Biały</MenuItem>
                         <MenuItem value="red">Czerwony</MenuItem>
-                        <MenuItem value="blue">Niebieski</MenuItem>
-                        <MenuItem value="green">Zielony</MenuItem>
-                        <MenuItem value="yellow">Żółty</MenuItem>
-                        <MenuItem value="purple">Fioletowy</MenuItem>
+                        <MenuItem value="#FDB0A0">Łososiowy</MenuItem>
+                        <MenuItem value="#00BCEA">Jasny niebieski</MenuItem>
+                        <MenuItem value="#DAFF34">Limonkowy</MenuItem>
                     </Select>
                     <p>Pozycja startowa:</p>
                     <Input

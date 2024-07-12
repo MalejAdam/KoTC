@@ -109,7 +109,7 @@ const App: React.FC = () => {
     }, [teams])
 
     useEffect(() => {
-        if (timer === '00:01') {
+        if (timer === '00:01' || timer === '05:01') {
             new Audio(testSound).play()
         }
     }, [timer])
@@ -305,6 +305,10 @@ const App: React.FC = () => {
                                                 width: '10px',
                                                 margin: '0 10px',
                                                 height: '80%',
+                                                border:
+                                                    team.teamColor === 'white'
+                                                        ? '1px solid black'
+                                                        : 'none',
                                             }}
                                         ></div>
                                         {team.player1} - {team.player2}
